@@ -1,0 +1,42 @@
+#!/bin/bash
+
+check_merge_conflicts() {
+  if git status -s | grep -q '^UU'
+  then
+    echo You have a merge conflict to resolve.
+    exit 1
+  fi
+}
+
+# Deploy SCC to development
+if [ $# != 1 ]
+then 
+  echo Cannot deploy: No branch name given.
+  exit 1
+fi
+
+release_branch=$1
+branches=(master development)
+
+if git checkout $release_branch
+then
+  
+  echo Pulling latest changes on branch $release_branch ...
+  git pull origin $release_branch
+  check_merge_conflicts
+  git push origin $release_branch
+  
+  for b in "${branches[@]}"
+  do
+    git checkout $b
+    echo Pulling latest changes on branch $b ...
+    git pull origin $b
+    echo Merging branch $release_branch into branch $b  ...
+    git merge $release_branch
+    check_merge_conflicts
+    git push origin $b
+  done
+  
+  git checkout $release_branch
+  echo Deploying SCC branch release_branch to development server...
+fi

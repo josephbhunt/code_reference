@@ -1,0 +1,21 @@
+#!/bin/bash
+# Opens the gem supplied as first arg
+
+gem_name=$1
+rvm_gemset=`rvm-prompt`
+gemfile_path=~/.rvm/gems/$rvm_gemset/gems
+full_path=$gemfile_path/$gem_name
+
+if [ "$rvm_gemset" == "" ]; then
+  echo You are not currently using a gemset.
+  echo Use \'rvm gemset use\' to use a gemset.
+  exit 1
+fi
+
+if [ -e "$full_path" ] ; then
+  mate $full_path
+else
+  echo Gem not found.
+  echo This is all you\'ve got:
+  ls $gemfile_path
+fi
