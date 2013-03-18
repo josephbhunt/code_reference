@@ -1,0 +1,2 @@
+# Find all the commits in branch_2 that are not in branch_1
+git log --left-right --cherry-pick --oneline branch_1..branch_2
