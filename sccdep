@@ -8,35 +8,51 @@ check_merge_conflicts() {
   fi
 }
 
-# Deploy SCC to development
-if [ $# != 1 ]
-then 
+# Is there a branch name given
+if [ $# -lt 1 ]; then 
   echo Cannot deploy: No branch name given.
   exit 1
 fi
-
 release_branch=$1
-branches=(master development)
 
-if git checkout $release_branch
-then
+deploy_branches=()
+# Is there a branch name given
+if  [[ -z $2 || "$2" == "dev" ]]; then
+  deploy_env="dev"
+  deploy_branches=(master development)
+  echo This will merge $release_brach into master and development
+elif [ "$2" == "staging" ]; then
+  deploy_env=$2
+  deploy_branches=($deploy_env)
+  echo This will merge $release_brach into staging
+else
+  echo Cannot deploy: Deployment environment not recognized.
+  exit 1
+fi
+
+if git checkout $release_branch; then
   
   echo Pulling latest changes on branch $release_branch ...
   git pull origin $release_branch
   check_merge_conflicts
   git push origin $release_branch
   
-  for b in "${branches[@]}"
+  for b in "${deploy_branches[@]}"
   do
     git checkout $b
     echo Pulling latest changes on branch $b ...
     git pull origin $b
     echo Merging branch $release_branch into branch $b  ...
-    git merge $release_branch
+    if [ "$b" == "development" ]; then
+      git merge master
+    else
+      git merge $release_branch
+    fi
     check_merge_conflicts
     git push origin $b
   done
   
   git checkout $release_branch
   echo Deploying SCC branch release_branch to development server...
+  bundle exec cap deploy
 fi

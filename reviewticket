@@ -1,0 +1,21 @@
+#! /bin/bash
+
+if [ $# != 1 ]
+then 
+  echo You must give a ticket number.
+  exit 1
+fi
+
+ticket_number=$1
+
+commits="$(git log --grep=$ticket_number --pretty=format:'%h')"
+commits_array=($commits)
+last_commit_index=$((${#commits_array[@]}-1))
+
+git diff ${commits_array[0]}..${commits_array[$last_commit_index]}
+
+
+#for c in "${commits_array[@]}"
+#do
+#  (git show --pretty="format:" --name-only bd61ad98)
+#done
