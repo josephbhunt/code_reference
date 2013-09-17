@@ -16,11 +16,12 @@ fi
 release_branch=$1
 
 deploy_branches=()
+deploy_env=""
 # Is there a branch name given
 if  [[ -z $2 || "$2" == "dev" ]]; then
   deploy_env="dev"
-  deploy_branches=(master development)
-  echo This will merge $release_brach into master and development
+  deploy_branches=(master development autotest)
+  echo This will merge $release_brach into master, development, and autotest
 elif [ "$2" == "staging" ]; then
   deploy_env=$2
   deploy_branches=($deploy_env)
@@ -53,6 +54,10 @@ if git checkout $release_branch; then
   done
   
   git checkout $release_branch
-  echo Deploying SCC branch release_branch to development server...
-  bundle exec cap deploy
+  echo Deploying SCC branch $release_branch to $deploy_env server...
+  bundle exec cap deploy $deploy_env
+  if [ "$deploy_env" == "dev" ]; then
+    echo Deploying SCC branch $release_branch to autotest server...
+    bundle exec cap deploy autotest
+  fi
 fi
