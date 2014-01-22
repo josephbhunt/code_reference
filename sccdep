@@ -53,6 +53,6 @@ if git checkout $release_branch; then
   done
   
   git checkout $release_branch
-  echo Deploying SCC branch release_branch to development server...
+  echo Deploying SCC branch $release_branch to development server...
   bundle exec cap deploy
 fi
