@@ -1,0 +1,13 @@
+# Secret Token
+# Use this to force your secret token to be stored in an environment variable for production, but generated for test and dev.
+#http://daniel.fone.net.nz/blog/2013/05/20/a-better-way-to-manage-the-rails-secret-token/
+MyApp::Application.config.secret_token = if Rails.env.development? or Rails.env.test?
+  ('x' * 30) # meets minimum requirement of 30 chars long
+else
+  ENV['SECRET_TOKEN']
+end
+
+
+# After putting database.yml into .gitignore, run this to stop tracking changes.
+#http://www.coshx.com/blog/2013/02/26/ignoring-local-changes-to-tracked-files-with-git 
+git update-index --assume-unchanged config/database.yml
